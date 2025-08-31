@@ -3,6 +3,8 @@ package br.com.sustentavel.apisustentavel.controller;
 import br.com.sustentavel.apisustentavel.dtos.AcaoSustentavelRequest;
 import br.com.sustentavel.apisustentavel.dtos.AcaoSustentavelResponse;
 import br.com.sustentavel.apisustentavel.model.AcaoSustentavel;
+import br.com.sustentavel.apisustentavel.model.CategoriaAcao;
+import br.com.sustentavel.apisustentavel.exception.RecursoNaoEncontradoException;
 import br.com.sustentavel.apisustentavel.repository.AcaoSustentavelRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +32,14 @@ public class AcaoSustentavelController {
     }
 
     // Get / acoes / id -> buscar por ID
+
     @GetMapping("/{id}")
     public ResponseEntity<AcaoSustentavelResponse> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(acao -> ResponseEntity.ok(toResponse(acao)))
-                .orElse(ResponseEntity.notFound().build());
+        AcaoSustentavel acao = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Ação com ID " + id + " não encontrada"));
+        return ResponseEntity.ok(toResponse(acao));
     }
+
 
     //Post / acoes -> cadastrar nova ação
     @PostMapping
@@ -60,10 +64,12 @@ public class AcaoSustentavelController {
                     AcaoSustentavel atualizada = repository.save(acao);
                     return ResponseEntity.ok(toResponse(atualizada));
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Ação com ID " + id + " não encontrada"));
     }
 
     //Delete / acoes/{id} -> excluir
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         return repository.findById(id)
@@ -71,8 +77,9 @@ public class AcaoSustentavelController {
                     repository.delete(acao);
                     return ResponseEntity.noContent().build();
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Ação com ID " + id + " não encontrada"));
     }
+
 
     // Método para conversão
     private AcaoSustentavelResponse toResponse(AcaoSustentavel acao) {
@@ -95,5 +102,16 @@ public class AcaoSustentavelController {
         acao.setResponsavel(request.getResponsavel());
         return acao;
     }
+
+
+    @GetMapping("/categoria")
+    public ResponseEntity<List<AcaoSustentavelResponse>> filtrarPorCategoria(@RequestParam CategoriaAcao tipo) {
+        List<AcaoSustentavel> acoes = repository.findByCategoria(tipo);
+        List<AcaoSustentavelResponse> resposta = acoes.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(resposta);
+    }
+
 
 }
