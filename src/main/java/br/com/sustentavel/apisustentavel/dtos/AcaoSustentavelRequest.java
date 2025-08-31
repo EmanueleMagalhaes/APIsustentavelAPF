@@ -25,7 +25,7 @@ public class AcaoSustentavelRequest {
 
     @PastOrPresent(message = "O responsável é obrigatório")
     @Size(min = 3, max = 100, message = "O nome do respónsavel deve ter entre 3 e 100 caracteres")
-    private String responsável;
+    private String responsavel;
 
     public String getTitulo() {
         return titulo;
@@ -59,11 +59,11 @@ public class AcaoSustentavelRequest {
         this.dataRealizacao = dataRealizacao;
     }
 
-    public String getResponsável() {
-        return responsável;
+    public String getResponsavel() {
+        return responsavel;
     }
 
-    public void setResponsável(String responsável) {
-        this.responsável = responsável;
+    public void setResponsavel(String responsavel) {
+        this.responsavel = responsavel;
     }
 }
